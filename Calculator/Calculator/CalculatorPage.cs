@@ -16,32 +16,105 @@ namespace Calculator
         Subtract = 3,
     }
 
+    public enum Mode
+    {
+        Replace = 0,
+        Append = 1,
+    }
+
     public class CalculatorPage : ContentPage
     {
 
         double leftOperand;
-        Operator currentOperator; //create entry states "append" vs. "replace"
+        Operator currentOperator;
+        Mode currentMode;
 
-        public CalculatorPage() //clean up with break-out methods for later
+        double display = 0;
+        double Display
         {
-            Grid grid = new Grid();
-            Label label = new Label();
-            StackLayout gridWrapper = new StackLayout();
+            get
+            {
+                return display;
+            }
+            set
+            {
+                display = value;
+                label.Text = string.Format("{0:0.###}",value);
+            }
+        }
 
-            var buttonClear = new Button();
-            var buttonZero = new Button();
-            var buttonEquals = new Button();
+        Button buttonClear = new Button();
+        Button buttonZero = new Button();
+        Button buttonEquals = new Button();
 
-            var buttonMultiply = new Button();
-            var buttonDivide = new Button();
-            var buttonAdd = new Button();
-            var buttonSubtract = new Button();
+        Button buttonMultiply = new Button();
+        Button buttonDivide = new Button();
+        Button buttonAdd = new Button();
+        Button buttonSubtract = new Button();
 
+        Grid grid = new Grid();
+        Label label = new Label();
+        StackLayout gridWrapper = new StackLayout();
+
+        public CalculatorPage()
+        {
+
+            createButtonText(); 
+
+            buttonMultiply.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Multiply);
+            buttonDivide.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Divide);
+            buttonAdd.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Add);
+            buttonSubtract.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Subtract);
+
+            buttonClear.Clicked += (s, e) => Display = 0;
+            buttonZero.Clicked += (s, e) => HandleNumberButtonClicked(buttonZero, 0);
+
+            gridWrapper.Children.Add(label);
+            gridWrapper.Children.Add(grid);
+
+            Display = 0; //initialize display
+
+            buttonEquals.Clicked += (s, e) =>
+            {
+                Display = Compute(leftOperand, Display, currentOperator);
+            };
+
+            label.LineBreakMode = LineBreakMode.NoWrap;
+            label.FontSize = 50;
+            label.HorizontalTextAlignment = TextAlignment.End;
+
+            grid.Padding= new Thickness(5,5,5,5);
+            gridWrapper.Padding = new Thickness(30,30,30,30);
+            Content = gridWrapper;
+        }
+
+        private void HandleNumberButtonClicked(Button button, int number)
+        {
+            if(currentMode == Mode.Replace)
+            {
+                Display = number;
+                currentMode = Mode.Append;
+                return;
+            }
+
+            if(label.Text.Length < 9)
+                Display = Display*10 + number;
+        }
+
+        private void HandleOperatorButtonClicked(Button button, Operator op)
+        {
+            currentMode = Mode.Replace;
+            leftOperand = Display;
+            currentOperator = op;
+        }
+
+        private void createButtonText()
+        {
             int x = 9;
 
             for (int i = 0; i < 3; i++)
             {
-                for(int j = 4; j > 0; j--)
+                for (int j = 4; j > 0; j--)
                 {
                     if (j == 4)
                     {
@@ -50,10 +123,7 @@ namespace Calculator
                     var tempButton = new Button();
                     tempButton.Text = x.ToString();
                     int val = x;
-                    tempButton.Clicked += (s, e) =>
-                    {
-                        label.Text = (label.Text + val.ToString()).TrimStart('0');
-                    };
+                    tempButton.Clicked += (s, e) => HandleNumberButtonClicked(tempButton, val);
                     x--;
                     grid.Children.Add(tempButton, j - 1, j, i, i + 1);
                 }
@@ -64,77 +134,19 @@ namespace Calculator
             grid.Children.Add(buttonAdd, 3, 4, 2, 3);
             grid.Children.Add(buttonSubtract, 3, 4, 3, 4);
 
-            buttonMultiply.Clicked += (s, e) =>
-            {
-                leftOperand = double.Parse(label.Text);
-                currentOperator = Operator.Multiply;
-                label.Text = "0";
-            };
-
-            buttonDivide.Clicked += (s, e) =>
-            {
-                leftOperand = double.Parse(label.Text);
-                currentOperator = Operator.Divide;
-                label.Text = "0";
-            };
-
-            buttonAdd.Clicked += (s, e) =>
-            {
-                leftOperand = double.Parse(label.Text);
-                currentOperator = Operator.Add;
-                label.Text = "0";
-            };
-
-            buttonSubtract.Clicked += (s, e) =>
-            {
-                leftOperand = double.Parse(label.Text);
-                currentOperator = Operator.Subtract;
-                label.Text = "0";
-            };
+            grid.Children.Add(buttonClear, 0, 1, 3, 4);
+            grid.Children.Add(buttonZero, 1, 2, 3, 4);
+            grid.Children.Add(buttonEquals, 2, 3, 3, 4);
 
             buttonMultiply.Text = "*";
             buttonDivide.Text = "/";
             buttonAdd.Text = "+";
             buttonSubtract.Text = "-";
 
-            grid.Children.Add(buttonClear, 0, 1, 3, 4);
-            grid.Children.Add(buttonZero, 1, 2, 3, 4);
-            grid.Children.Add(buttonEquals, 2, 3, 3, 4);
-
             buttonClear.Text = "C";
-            buttonClear.Clicked += (s, e) =>
-            {
-                label.Text = "0";
-            };
-
             buttonZero.Text = "0";
-            buttonZero.Clicked += (s, e) =>
-            {
-                if(label.Text == "0")
-                {
-                    return;
-                }
-                label.Text = label.Text + "0";
-            };
-
-            gridWrapper.Children.Add(label);
-            gridWrapper.Children.Add(grid);
-
-            label.Text = "0";
-
             buttonEquals.Text = "=";
-            buttonEquals.Clicked += (s, e) =>
-            {
-                label.Text = Compute(leftOperand, double.Parse(label.Text), currentOperator).ToString();
-            };
 
-            label.LineBreakMode = LineBreakMode.NoWrap;
-            label.FontSize = 50;
-            label.HorizontalTextAlignment = TextAlignment.End;
-
-            grid.Padding= new Thickness(5,5,5,5);
-            gridWrapper.Padding = new Thickness(30,30,30,30);
-            Content = gridWrapper;
         }
 
         private double Compute(double left, double right, Operator op)
@@ -152,6 +164,6 @@ namespace Calculator
             }
             throw new InvalidOperationException();
         }
-
     }
 }
+
