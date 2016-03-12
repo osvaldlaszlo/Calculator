@@ -29,6 +29,20 @@ namespace Calculator
         Operator currentOperator;
         Mode currentMode;
 
+        string history;
+        string History
+        {
+            get
+            {
+                return history;
+            }
+            set
+            {
+                // history += value.ToString(); i dont know whta value is?
+                historyLabel.Text = history;
+            }
+        }
+
         double display = 0;
         double Display
         {
@@ -53,6 +67,7 @@ namespace Calculator
         Button buttonSubtract = new Button();
 
         Grid grid = new Grid();
+        Label historyLabel = new Label();
         Label label = new Label();
         StackLayout gridWrapper = new StackLayout();
 
@@ -69,14 +84,17 @@ namespace Calculator
             buttonClear.Clicked += (s, e) => Display = 0;
             buttonZero.Clicked += (s, e) => HandleNumberButtonClicked(buttonZero, 0);
 
+            gridWrapper.Children.Add(historyLabel);
             gridWrapper.Children.Add(label);
             gridWrapper.Children.Add(grid);
 
             Display = 0; //initialize display
+            History = ""; //initialize history
 
             buttonEquals.Clicked += (s, e) =>
             {
                 Display = Compute(leftOperand, Display, currentOperator);
+                History += " = ";
             };
 
             label.LineBreakMode = LineBreakMode.NoWrap;
@@ -93,6 +111,7 @@ namespace Calculator
             if(currentMode == Mode.Replace)
             {
                 Display = number;
+                History = " " + number.ToString() + " ";
                 currentMode = Mode.Append;
                 return;
             }
@@ -105,6 +124,7 @@ namespace Calculator
         {
             currentMode = Mode.Replace;
             leftOperand = Display;
+            History += " " + leftOperand + " ";
             currentOperator = op;
         }
 
