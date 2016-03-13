@@ -22,14 +22,26 @@ namespace Calculator
         Append = 1,
     }
 
-    public class CalculatorPage : ContentPage
+    public class CalculatorPage : ContentPage //needs to be re-written to separate the concept of "display" and "solution" and behavior of buttons needs to be reworked to allow for order of operations
     {
 
         double leftOperand;
+        double rightOperand;
+        bool repeatEquals;
+
+        bool clearHistory;
+
+        //bool operatorPressed;
+
+        bool decimalEntry;
+        int decimalCount = 1;
+
+        //bool parenEntry;
+
         Operator currentOperator;
         Mode currentMode;
 
-        string history;
+        string history = "";
         string History
         {
             get
@@ -38,7 +50,7 @@ namespace Calculator
             }
             set
             {
-                // history += value.ToString(); i dont know whta value is?
+                history = value.ToString();
                 historyLabel.Text = history;
             }
         }
@@ -52,14 +64,24 @@ namespace Calculator
             }
             set
             {
+                //if(parenEntry)
+                //{
+                //    display = value;
+                //    label.Text = string.Format("({0:0.#######})", value);
+                //}
                 display = value;
-                label.Text = string.Format("{0:0.###}",value);
+                label.Text = string.Format("{0:0.#######}",value);
             }
         }
 
         Button buttonClear = new Button();
         Button buttonZero = new Button();
         Button buttonEquals = new Button();
+        Button buttonDecimal = new Button();
+        Button buttonPlusMinus = new Button();
+
+        Button buttonLeftParen = new Button();
+        Button buttonRightParen = new Button();
 
         Button buttonMultiply = new Button();
         Button buttonDivide = new Button();
@@ -74,28 +96,69 @@ namespace Calculator
         public CalculatorPage()
         {
 
-            createButtonText(); 
+            createButtonText();
+
+            Display = 0; //initialize display
+            History = ""; //initialize history
+            clearHistory = false;
+            decimalEntry = false;
 
             buttonMultiply.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Multiply);
-            buttonDivide.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Divide);
-            buttonAdd.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Add);
-            buttonSubtract.Clicked += (s, e) => HandleOperatorButtonClicked(buttonMultiply, Operator.Subtract);
+            buttonDivide.Clicked += (s, e) => HandleOperatorButtonClicked(buttonDivide, Operator.Divide);
+            buttonAdd.Clicked += (s, e) => HandleOperatorButtonClicked(buttonAdd, Operator.Add);
+            buttonSubtract.Clicked += (s, e) => HandleOperatorButtonClicked(buttonSubtract, Operator.Subtract);
 
-            buttonClear.Clicked += (s, e) => Display = 0;
+            buttonClear.Clicked += (s, e) =>
+            {
+                Display = 0;
+                History = "";
+            };
+
             buttonZero.Clicked += (s, e) => HandleNumberButtonClicked(buttonZero, 0);
+
+            buttonEquals.Clicked += (s, e) =>
+            {
+                if (clearHistory)
+                {
+                    History = "";
+                    clearHistory = false;
+                }
+
+                clearHistory = true;
+
+                if (decimalEntry)
+                {
+                    decimalCount = 1;
+                    decimalEntry = false;
+                }
+
+                if (repeatEquals)
+                {
+                    Display = Compute(Display, rightOperand, currentOperator); //may want to rewrite this to go re-press the buttons to update the history, history is left un-updated for now
+                    return;
+                }
+
+                rightOperand = Display;
+                Display = Compute(leftOperand, Display, currentOperator);
+                repeatEquals = true;
+                //operatorPressed = false;
+            };
+
+            buttonDecimal.Clicked += (s, e) =>
+            {
+                decimalEntry = true;
+                Display = Display + 0;
+                History += ".";
+            };
+
+            buttonPlusMinus.Clicked += (s, e) =>
+            {
+                Display = Display * -1;
+            };
 
             gridWrapper.Children.Add(historyLabel);
             gridWrapper.Children.Add(label);
             gridWrapper.Children.Add(grid);
-
-            Display = 0; //initialize display
-            History = ""; //initialize history
-
-            buttonEquals.Clicked += (s, e) =>
-            {
-                Display = Compute(leftOperand, Display, currentOperator);
-                History += " = ";
-            };
 
             label.LineBreakMode = LineBreakMode.NoWrap;
             label.FontSize = 50;
@@ -106,25 +169,97 @@ namespace Calculator
             Content = gridWrapper;
         }
 
+        //private void PressEquals()
+        //{
+        //    buttonEquals.Clicked += (s, e) =>
+        //    {
+        //        if (clearHistory)
+        //        {
+        //            History = "";
+        //            clearHistory = false;
+        //        }
+
+        //        clearHistory = true;
+
+        //        if (decimalEntry)
+        //        {
+        //            decimalCount = 1;
+        //            decimalEntry = false;
+        //        }
+
+        //        if (repeatEquals)
+        //        {
+        //            Display = Compute(Display, rightOperand, currentOperator); //may want to rewrite this to go re-press the buttons to update the history, history is left un-updated for now
+        //            return;
+        //        }
+
+        //        rightOperand = Display;
+        //        Display = Compute(leftOperand, Display, currentOperator);
+        //        repeatEquals = true;
+        //        operatorPressed = false;
+        //    };
+        //}
+
         private void HandleNumberButtonClicked(Button button, int number)
         {
+            repeatEquals = false;
+
+            if (clearHistory)
+            {
+                History = "";
+                clearHistory = false;
+            }
+
             if(currentMode == Mode.Replace)
             {
+                repeatEquals = false;
+
                 Display = number;
-                History = " " + number.ToString() + " ";
+                History += number.ToString();
                 currentMode = Mode.Append;
                 return;
             }
+          
+            if (label.Text.Length < 9 && !decimalEntry)
+            {
+                Display = Display * 10 + number;
+                History += number;
+            }
 
-            if(label.Text.Length < 9)
-                Display = Display*10 + number;
+            if(label.Text.Length < 9 && decimalEntry)
+            {
+                Display = Display + number / (Math.Pow(10, decimalCount));
+                History += number;
+                decimalCount++;
+            }
         }
 
         private void HandleOperatorButtonClicked(Button button, Operator op)
         {
+            //if (operatorPressed)
+            //    PressEquals();
+
+            //operatorPressed = true;
+
+            if (clearHistory)
+            {
+                History = "";
+                clearHistory = false;
+            }
+
+            if (decimalEntry)
+            {
+                decimalCount = 1;
+                decimalEntry = false;
+            }
+
             currentMode = Mode.Replace;
             leftOperand = Display;
-            History += " " + leftOperand + " ";
+            History = leftOperand.ToString();
+            if(!History.EndsWith(button.Text))
+            {
+                History += " " + button.Text + " ";
+            }
             currentOperator = op;
         }
 
@@ -132,7 +267,7 @@ namespace Calculator
         {
             int x = 9;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 1; i < 4; i++)
             {
                 for (int j = 4; j > 0; j--)
                 {
@@ -145,18 +280,23 @@ namespace Calculator
                     int val = x;
                     tempButton.Clicked += (s, e) => HandleNumberButtonClicked(tempButton, val);
                     x--;
-                    grid.Children.Add(tempButton, j - 1, j, i, i + 1);
+                    grid.Children.Add(tempButton, j - 1, i);
                 }
             }
 
-            grid.Children.Add(buttonMultiply, 3, 4, 0, 1);
-            grid.Children.Add(buttonDivide, 3, 4, 1, 2);
-            grid.Children.Add(buttonAdd, 3, 4, 2, 3);
-            grid.Children.Add(buttonSubtract, 3, 4, 3, 4);
+            grid.Children.Add(buttonDivide, 3, 0);
+            grid.Children.Add(buttonMultiply, 3, 1);
+            grid.Children.Add(buttonSubtract, 3, 2);
+            grid.Children.Add(buttonAdd, 3, 3);
 
-            grid.Children.Add(buttonClear, 0, 1, 3, 4);
-            grid.Children.Add(buttonZero, 1, 2, 3, 4);
-            grid.Children.Add(buttonEquals, 2, 3, 3, 4);
+            grid.Children.Add(buttonClear, 0, 0);
+            grid.Children.Add(buttonZero, 1, 4);
+            grid.Children.Add(buttonEquals, 3, 4);
+            grid.Children.Add(buttonDecimal, 2, 4);
+            grid.Children.Add(buttonPlusMinus, 0, 4);
+
+            grid.Children.Add(buttonLeftParen, 1, 0);
+            grid.Children.Add(buttonRightParen, 2, 0);
 
             buttonMultiply.Text = "*";
             buttonDivide.Text = "/";
@@ -166,6 +306,11 @@ namespace Calculator
             buttonClear.Text = "C";
             buttonZero.Text = "0";
             buttonEquals.Text = "=";
+            buttonDecimal.Text = ".";
+            buttonPlusMinus.Text = "\u00B1";
+
+            buttonLeftParen.Text = "(";
+            buttonRightParen.Text = ")";
 
         }
 
