@@ -11,9 +11,14 @@ namespace Calculator
     public enum Operator
     {
         Multiply = 0,
-        Divide = 1,
-        Add = 2,
-        Subtract = 3,
+        Divide,
+        Add,
+        Subtract,
+        Period,
+        OpenParen,
+        ClosedParen,
+        Equal,
+        Invert
     }
 
     public enum Mode
@@ -24,6 +29,10 @@ namespace Calculator
 
     public class CalculatorPage : ContentPage //needs to be re-written to separate the concept of "display" and "solution" and behavior of buttons needs to be reworked to allow for order of operations
     {
+        //goal - rewrite solution into another class, calculator, that has add, subtract, multiply, divide, set left/right operand, compute, etc
+        //model - Calculator
+        //view - CalculatorView - should do things such as CalculatorButtonPressed, showing what button was pressed (condensing events)
+        //controller - CalculatorController
 
         double leftOperand;
         double rightOperand;
@@ -73,6 +82,8 @@ namespace Calculator
                 label.Text = string.Format("{0:0.#######}",value);
             }
         }
+
+        //need to create local variables instead of instance variables
 
         Button buttonClear = new Button();
         Button buttonZero = new Button();
@@ -134,12 +145,12 @@ namespace Calculator
 
                 if (repeatEquals)
                 {
-                    Display = Compute(Display, rightOperand, currentOperator); //may want to rewrite this to go re-press the buttons to update the history, history is left un-updated for now
+                    Display = MathUtils.Compute(Display, rightOperand, currentOperator); //may want to rewrite this to go re-press the buttons to update the history, history is left un-updated for now
                     return;
                 }
 
                 rightOperand = Display;
-                Display = Compute(leftOperand, Display, currentOperator);
+                Display = MathUtils.Compute(leftOperand, Display, currentOperator);
                 repeatEquals = true;
                 //operatorPressed = false;
             };
@@ -189,12 +200,12 @@ namespace Calculator
 
         //        if (repeatEquals)
         //        {
-        //            Display = Compute(Display, rightOperand, currentOperator); //may want to rewrite this to go re-press the buttons to update the history, history is left un-updated for now
+        //            Display = MathUtils.Compute(Display, rightOperand, currentOperator); //may want to rewrite this to go re-press the buttons to update the history, history is left un-updated for now
         //            return;
         //        }
 
         //        rightOperand = Display;
-        //        Display = Compute(leftOperand, Display, currentOperator);
+        //        Display = MathUtils.Compute(leftOperand, Display, currentOperator);
         //        repeatEquals = true;
         //        operatorPressed = false;
         //    };
@@ -284,6 +295,9 @@ namespace Calculator
                 }
             }
 
+            //grid.BackgroundColor = Color.Blue;
+            grid.VerticalOptions = LayoutOptions.EndAndExpand;
+
             grid.Children.Add(buttonDivide, 3, 0);
             grid.Children.Add(buttonMultiply, 3, 1);
             grid.Children.Add(buttonSubtract, 3, 2);
@@ -312,22 +326,6 @@ namespace Calculator
             buttonLeftParen.Text = "(";
             buttonRightParen.Text = ")";
 
-        }
-
-        private double Compute(double left, double right, Operator op)
-        {
-            switch (op)
-            {
-                case Operator.Multiply:
-                    return left * right;
-                case Operator.Divide:
-                    return left / right;
-                case Operator.Add:
-                    return left + right;
-                case Operator.Subtract:
-                    return left - right;
-            }
-            throw new InvalidOperationException();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Calculator.WinPhone
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
 
-            LoadApplication(new Calculator.App());
+            LoadApplication(new global::Calculator.App());
         }
 
         /// <summary>

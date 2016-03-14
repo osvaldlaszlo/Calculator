@@ -36,7 +36,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="Calculator.cs" />
+    <Compile Include="CalculatorController.cs" />
     <Compile Include="CalculatorPage.cs" />
+    <Compile Include="ICalculator.cs" />
+    <Compile Include="MathUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

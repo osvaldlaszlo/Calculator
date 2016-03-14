@@ -12,7 +12,10 @@ namespace Calculator
         public App()
         {
             // The root page of your application
-            MainPage = new CalculatorPage();
+            var masterDetailPage = new MasterDetailPage();
+            masterDetailPage.Detail = new CalculatorPage();
+            masterDetailPage.Master = new ContentPage { Title = "menu" }; //placeholder that will eventually become a menu
+            MainPage = masterDetailPage;
            
         }
 
