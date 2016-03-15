@@ -113,6 +113,20 @@ namespace Calculator
                     mode = Mode.Replace;
                     break;
 
+                case Modifier.Period:
+                    storedOperation = current;
+                    
+                    break;
+
+                case Modifier.Invert:
+                    break;
+
+                case Modifier.OpenParen:
+                    break;
+
+                case Modifier.ClosedParen:
+                    break;
+
             }
         }
 
