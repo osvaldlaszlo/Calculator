@@ -8,25 +8,7 @@ using Xamarin.Forms;
 
 namespace Calculator
 {
-    public enum Operator
-    {
-        Multiply = 0,
-        Divide,
-        Add,
-        Subtract,
-        Period,
-        OpenParen,
-        ClosedParen,
-        Equal,
-        Invert
-    }
-
-    public enum Mode
-    {
-        Replace = 0,
-        Append = 1,
-    }
-
+    
     public class CalculatorPage : ContentPage //needs to be re-written to separate the concept of "display" and "solution" and behavior of buttons needs to be reworked to allow for order of operations
     {
         //goal - rewrite solution into another class, calculator, that has add, subtract, multiply, divide, set left/right operand, compute, etc

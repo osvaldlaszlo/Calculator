@@ -6,11 +6,6 @@ using System.Threading.Tasks;
 
 namespace Calculator
 {
-    public interface ICalculator //caluclator will be a collection of operations
-    {
-        Operation Current { get; }
-    }
-
     public abstract class Operation //make an implicit operator (google implicit operator override) should take a double and return an operation (a constant)
     {
         Operation leftOperand;
@@ -52,10 +47,61 @@ namespace Calculator
         }
     }
 
+    public class SubtractOperation : Operation
+    {
+        public override string ToString()
+        {
+            return $"({LeftOperand} - {RightOperand})";
+        }
+
+        public override double Result
+        {
+            get
+            {
+                if (LeftOperand == null || RightOperand == null)
+                    return double.NaN;
+                return LeftOperand.Result - RightOperand.Result;
+            }
+        }
+    }
+
+    public class MultiplyOperation : Operation
+    {
+        public override string ToString()
+        {
+            return $"({LeftOperand} * {RightOperand})";
+        }
+        public override double Result
+        {
+            get
+            {
+                if (LeftOperand == null || RightOperand == null)
+                    return double.NaN;
+                return LeftOperand.Result * RightOperand.Result;
+            }
+        }
+    }
+
+    public class DivideOperation : Operation
+    {
+        public override string ToString()
+        {
+            return $"({LeftOperand} / {RightOperand})";
+        }
+        public override double Result
+        {
+            get
+            {
+                if (LeftOperand == null || RightOperand == null)
+                    return double.NaN;
+                return LeftOperand.Result / RightOperand.Result;
+            }
+        }
+    }
+
     public class Constant : Operation
     {
         double number;
-
         public Constant(double number)
         {
             this.number = number;    
