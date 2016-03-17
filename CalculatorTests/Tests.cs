@@ -107,5 +107,18 @@ namespace CalculatorTests
             Assert.AreEqual("45", mockView.Display);
         }
 
+        [Test] //note: need to test for user pressing equal prior to any other operations
+        public void TestDecimalInput()
+        {
+            var mockView = new MockView();
+            var controller = new CalculatorController(mockView);
+
+            mockView.SendNumberPressed(6);
+            mockView.SendModifierPressed(Modifier.Period);
+            mockView.SendNumberPressed(7);
+            mockView.SendNumberPressed(8);
+
+            Assert.AreEqual("6.78", mockView.Display);
+        }
     }
 }

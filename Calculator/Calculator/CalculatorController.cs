@@ -29,6 +29,12 @@ namespace Calculator
         Append,
     }
 
+    public enum Entry
+    {
+        Integer = 0,
+        Decimal,
+    }
+
     public interface ICalculatorView
     {
         event EventHandler<NumberPressedEventArgs> NumberPressed;
@@ -57,6 +63,10 @@ namespace Calculator
         ICalculatorView view;
 
         Mode mode = Mode.Replace;
+        Entry entry = Entry.Integer;
+
+        int decimalCount = 1;
+
         Operation current = 0; //initialize current operation
         Operation storedOperation = 0; //initialize storedOperation
         
@@ -71,10 +81,13 @@ namespace Calculator
 
         private void HandleOperatorPressed(object sender, OperatorPressedEventArgs e)
         {
+            entry = Entry.Integer;
+            decimalCount = 1;
+
             switch (e.Operator)
             {
                 case Operator.Add:
-                    AddOperation add = new AddOperation();
+                    AddOperation add = new AddOperation();            
                     add.LeftOperand = storedOperation;
                     current = add;
                     mode = Mode.Replace;
@@ -114,8 +127,10 @@ namespace Calculator
                     break;
 
                 case Modifier.Period:
-                    storedOperation = current;
-                    
+                    current = storedOperation;
+                    this.view.Display = current.Result.ToString("0.######");
+                    mode = Mode.Replace;
+                    entry = Entry.Decimal;
                     break;
 
                 case Modifier.Invert:
@@ -132,6 +147,14 @@ namespace Calculator
 
         private void HandleNumberPressed(object sender, NumberPressedEventArgs e)
         {
+            if(entry == Entry.Decimal)
+            {
+                storedOperation = storedOperation.Result + e.Number / Math.Pow(10, decimalCount);
+                this.view.Display = storedOperation.Result.ToString("0.######");
+                decimalCount++;
+                return;
+            }
+
             if(mode == Mode.Replace)
             {
                 storedOperation = e.Number;
