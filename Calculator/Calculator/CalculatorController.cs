@@ -35,6 +35,12 @@ namespace Calculator
         Decimal,
     }
 
+    public enum Paren
+    {
+        Open = 0,
+        Closed = 1,
+    }
+
     public interface ICalculatorView
     {
         event EventHandler<NumberPressedEventArgs> NumberPressed;
@@ -64,12 +70,13 @@ namespace Calculator
 
         Mode mode = Mode.Replace;
         Entry entry = Entry.Integer;
+        Paren paren = Paren.Closed;
 
         int decimalCount = 1;
 
         Operation current = 0; //initialize current operation
         Operation storedOperation = 0; //initialize storedOperation
-        
+        ParenOperation parenOp = new ParenOperation(); //initialize parenOperation
 
         public CalculatorController(ICalculatorView view)
         {
@@ -134,12 +141,24 @@ namespace Calculator
                     break;
 
                 case Modifier.Invert:
+                    storedOperation = storedOperation.Result * -1;
+                    current = storedOperation;
+                    this.view.Display = current.Result.ToString("0.######");
                     break;
 
                 case Modifier.OpenParen:
+                    paren = Paren.Open;
+                    parenOp.LeftOperand = current;
+                    mode = Mode.Replace;
+                    this.view.Display = "(";
                     break;
 
                 case Modifier.ClosedParen:
+                    paren = Paren.Closed;
+                    parenOp.RightOperand = storedOperation;
+                    current = parenOp;
+                    mode = Mode.Replace;
+                    this.view.Display = "(" + current.Result.ToString("0.######") + ")";
                     break;
 
             }

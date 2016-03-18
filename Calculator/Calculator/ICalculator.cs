@@ -32,6 +32,14 @@ namespace Calculator
 
     public class AddOperation : Operation
     {
+        public Operator operatorType;
+        public Operator OperatorType
+        {
+            get
+            {
+                return op = Operator.Multiply;
+            }
+        }
         public override string ToString()
         {
             return $"({LeftOperand} + {RightOperand})";
@@ -49,6 +57,14 @@ namespace Calculator
 
     public class SubtractOperation : Operation
     {
+        public Operator operatorType;
+        public Operator OperatorType
+        {
+            get
+            {
+                return operatorType = Operator.Multiply;
+            }
+        }
         public override string ToString()
         {
             return $"({LeftOperand} - {RightOperand})";
@@ -67,6 +83,15 @@ namespace Calculator
 
     public class MultiplyOperation : Operation
     {
+        public Operator operatorType;
+        public Operator OperatorType
+        {
+            get
+            {
+                return operatorType = Operator.Multiply;
+            }
+        }
+
         public override string ToString()
         {
             return $"({LeftOperand} * {RightOperand})";
@@ -84,6 +109,14 @@ namespace Calculator
 
     public class DivideOperation : Operation
     {
+        public Operator operatorType;
+        public Operator OperatorType
+        {
+            get
+            {
+                return operatorType = Operator.Divide;
+            }
+        }
         public override string ToString()
         {
             return $"({LeftOperand} / {RightOperand})";
@@ -95,6 +128,18 @@ namespace Calculator
                 if (LeftOperand == null || RightOperand == null)
                     return double.NaN;
                 return LeftOperand.Result / RightOperand.Result;
+            }
+        }
+    }
+
+    public class ParenOperation : Operation
+    {
+        public Operator currentOp;
+        public override double Result
+        {
+            get
+            {
+                throw new NotImplementedException();
             }
         }
     }

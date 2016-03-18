@@ -120,5 +120,34 @@ namespace CalculatorTests
 
             Assert.AreEqual("6.78", mockView.Display);
         }
+
+        [Test]
+        public void TestInvert()
+        {
+            var mockView = new MockView();
+            var controller = new CalculatorController(mockView);
+
+            mockView.SendNumberPressed(2);
+            mockView.SendModifierPressed(Modifier.Invert);
+
+            Assert.AreEqual("-2", mockView.Display);
+        }
+
+        [Test]
+        public void TestSimpleParens()
+        {
+            var mockView = new MockView();
+            var controller = new CalculatorController(mockView);
+
+            mockView.SendNumberPressed(3);
+            mockView.SendOperatorPressed(Operator.Add);
+            mockView.SendModifierPressed(Modifier.OpenParen);
+            mockView.SendNumberPressed(3);
+            mockView.SendOperatorPressed(Operator.Divide);
+            mockView.SendNumberPressed(2);
+            mockView.SendModifierPressed(Modifier.Equal);
+
+            Assert.AreEqual("4.5", mockView.Display);
+        }
     }
 }
