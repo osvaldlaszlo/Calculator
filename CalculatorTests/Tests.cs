@@ -145,6 +145,7 @@ namespace CalculatorTests
             mockView.SendNumberPressed(3);
             mockView.SendOperatorPressed(Operator.Divide);
             mockView.SendNumberPressed(2);
+            mockView.SendModifierPressed(Modifier.ClosedParen);
             mockView.SendModifierPressed(Modifier.Equal);
 
             Assert.AreEqual("4.5", mockView.Display);

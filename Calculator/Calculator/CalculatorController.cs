@@ -13,6 +13,7 @@ namespace Calculator
         Divide,
         Add,
         Subtract,
+        Constant
     }
 
     public enum Modifier
@@ -152,29 +153,8 @@ namespace Calculator
 
                 case Modifier.OpenParen: //add to ParenOperation by switching over storedOperation.OperatorType and adding the correct kind of operation
                     paren = Paren.Open;
-                    
-                    switch(storedOperation.OperatorType)
-                    {
-                        case Operator.Add:
-                            parenStack.Add(new AddOperation());
-                            parenStack[parenStackCount] = current;
-                            break;
 
-                        case Operator.Subtract:
-                            parenStack.Add(new SubtractOperation());
-                            parenStack[parenStackCount] = current;
-                            break;
-
-                        case Operator.Multiply:
-                            parenStack.Add(new MultiplyOperation());
-                            parenStack[parenStackCount] = current;
-                            break;
-
-                        case Operator.Divide:
-                            parenStack.Add(new DivideOperation());
-                            parenStack[parenStackCount] = current;
-                            break;
-                    }
+                    parenStack.Add(current.Clone());
 
                     parenStackCount++;
                     mode = Mode.Replace;

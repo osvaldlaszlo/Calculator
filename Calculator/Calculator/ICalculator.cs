@@ -6,12 +6,30 @@ using System.Threading.Tasks;
 
 namespace Calculator
 {
-    public abstract class Operation //make an implicit operator (google implicit operator override) should take a double and return an operation (a constant)
+    public interface ICloneable<out T>
     {
-        Operator operatorType;
-        public Operator OperatorType
+        T Clone();
+    }
+
+    public abstract class Operation : ICloneable<Operation>//make an implicit operator (google implicit operator override) should take a double and return an operation (a constant)
+    {
+        public Operation Clone()
         {
-            get { return operatorType; ; }
+            var copy = ShallowClone();
+            if(LeftOperand != null)
+            {
+                copy.LeftOperand = LeftOperand.Clone();
+            }
+            if (RightOperand != null)
+            {
+                copy.RightOperand = RightOperand.Clone();
+            }
+            return copy;
+        }
+
+        protected virtual Operation ShallowClone()
+        {
+            return (Operation)Activator.CreateInstance(this.GetType());
         }
 
         Operation leftOperand;
@@ -34,11 +52,11 @@ namespace Calculator
             Constant constant = new Constant(number);
             return constant;
         }
+
     }
 
     public class AddOperation : Operation
     {
-        public Operator operatorType = Operator.Add;
 
         public override string ToString()
         {
@@ -57,7 +75,6 @@ namespace Calculator
 
     public class SubtractOperation : Operation
     {
-        public Operator operatorType = Operator.Subtract;
 
         public override string ToString()
         {
@@ -77,7 +94,6 @@ namespace Calculator
 
     public class MultiplyOperation : Operation
     {
-        public Operator operatorType = Operator.Multiply;
 
         public override string ToString()
         {
@@ -96,7 +112,6 @@ namespace Calculator
 
     public class DivideOperation : Operation
     {
-        public Operator operatorType = Operator.Divide;
 
         public override string ToString()
         {
@@ -113,27 +128,15 @@ namespace Calculator
         }
     }
 
-    public class ParenOperation : Operation
-    {
-
-        public ParenOperation(Operation leftOperand, Operator operatorType)
-        {
-            this.LeftOperand = leftOperand;
-            this.OperatorType = operatorType;
-        }
-        public Operator OperatorType;
-        public override double Result
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-    }
-
     public class Constant : Operation
     {
         double number;
+
+        protected override Operation ShallowClone()
+        {
+            return new Constant(number);
+        }
+
         public Constant(double number)
         {
             this.number = number;    
