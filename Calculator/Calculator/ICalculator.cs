@@ -8,6 +8,12 @@ namespace Calculator
 {
     public abstract class Operation //make an implicit operator (google implicit operator override) should take a double and return an operation (a constant)
     {
+        Operator operatorType;
+        public Operator OperatorType
+        {
+            get { return operatorType; ; }
+        }
+
         Operation leftOperand;
         public Operation LeftOperand
         {
@@ -32,14 +38,8 @@ namespace Calculator
 
     public class AddOperation : Operation
     {
-        public Operator operatorType;
-        public Operator OperatorType
-        {
-            get
-            {
-                return op = Operator.Multiply;
-            }
-        }
+        public Operator operatorType = Operator.Add;
+
         public override string ToString()
         {
             return $"({LeftOperand} + {RightOperand})";
@@ -57,14 +57,8 @@ namespace Calculator
 
     public class SubtractOperation : Operation
     {
-        public Operator operatorType;
-        public Operator OperatorType
-        {
-            get
-            {
-                return operatorType = Operator.Multiply;
-            }
-        }
+        public Operator operatorType = Operator.Subtract;
+
         public override string ToString()
         {
             return $"({LeftOperand} - {RightOperand})";
@@ -83,14 +77,7 @@ namespace Calculator
 
     public class MultiplyOperation : Operation
     {
-        public Operator operatorType;
-        public Operator OperatorType
-        {
-            get
-            {
-                return operatorType = Operator.Multiply;
-            }
-        }
+        public Operator operatorType = Operator.Multiply;
 
         public override string ToString()
         {
@@ -109,14 +96,8 @@ namespace Calculator
 
     public class DivideOperation : Operation
     {
-        public Operator operatorType;
-        public Operator OperatorType
-        {
-            get
-            {
-                return operatorType = Operator.Divide;
-            }
-        }
+        public Operator operatorType = Operator.Divide;
+
         public override string ToString()
         {
             return $"({LeftOperand} / {RightOperand})";
@@ -134,7 +115,13 @@ namespace Calculator
 
     public class ParenOperation : Operation
     {
-        public Operator currentOp;
+
+        public ParenOperation(Operation leftOperand, Operator operatorType)
+        {
+            this.LeftOperand = leftOperand;
+            this.OperatorType = operatorType;
+        }
+        public Operator OperatorType;
         public override double Result
         {
             get
