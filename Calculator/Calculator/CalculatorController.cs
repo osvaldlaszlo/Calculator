@@ -39,8 +39,8 @@ namespace Calculator
 
     public enum Paren
     {
-        Open = 0,
-        Closed = 1,
+        Unused = 0,
+        Used,
     }
 
     public interface ICalculatorView
@@ -72,7 +72,7 @@ namespace Calculator
 
         Mode mode = Mode.Replace;
         Entry entry = Entry.Integer;
-        Paren paren = Paren.Closed;
+        Paren paren = Paren.Unused;
 
         int decimalCount = 1;
         int parenStackCount = 0;
@@ -132,8 +132,13 @@ namespace Calculator
             switch (e.Modifier)
             {
                 case Modifier.Equal: //need to modify functionality to back-out parenStack
-                    current = parenStack[0];
-                    current.RightOperand = storedOperation;
+                    if(paren == Paren.Used)
+                    {
+                        current = parenStack[0];
+                    } else
+                    {
+                        current.RightOperand = storedOperation;
+                    }
                     this.view.Display = current.Result.ToString("0.######");
                     mode = Mode.Replace;
                     break;
@@ -151,25 +156,20 @@ namespace Calculator
                     this.view.Display = current.Result.ToString("0.######");
                     break;
 
-                case Modifier.OpenParen: //add to ParenOperation by switching over storedOperation.OperatorType and adding the correct kind of operation
-                    paren = Paren.Open;
-
+                case Modifier.OpenParen:
                     parenStack.Add(current.Clone());
-
                     parenStackCount++;
                     mode = Mode.Replace;
-                    this.view.Display = "(";
+                    this.view.Display = "0";
                     break;
 
                 case Modifier.ClosedParen:
-                    paren = Paren.Closed;
-
-                    current = storedOperation;
-                    parenStack[parenStackCount].RightOperand = current;
                     parenStackCount--;
+                    current.RightOperand = storedOperation;
+                    parenStack[parenStackCount].RightOperand = current;
                     
                     mode = Mode.Replace;
-                    this.view.Display = "(" + current.Result.ToString("0.######") + ")";
+                    this.view.Display = current.Result.ToString("0.######");
                     break;
 
             }
@@ -182,13 +182,6 @@ namespace Calculator
 
                 storedOperation = storedOperation.Result + e.Number / Math.Pow(10, decimalCount);
                 decimalCount++;
-
-                if (paren == Paren.Open)
-                {
-                    this.view.Display = "(" + storedOperation.Result.ToString("0.######");
-                    return;
-                }
-
                 this.view.Display = storedOperation.Result.ToString("0.######");
                 return;
             }
@@ -197,18 +190,10 @@ namespace Calculator
             {
                 storedOperation = e.Number;
                 mode = Mode.Append;
-
-                if (paren == Paren.Open)
-                    this.view.Display = "(" + storedOperation.Result.ToString("0.######");
-
                 this.view.Display = storedOperation.Result.ToString("0.######");
             } else
             {
                 storedOperation = storedOperation.Result * 10 + e.Number;
-
-                if(paren == Paren.Open)
-                    this.view.Display = "(" + storedOperation.Result.ToString("0.######");
-
                 this.view.Display = storedOperation.Result.ToString("0.######");
             }
 

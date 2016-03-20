@@ -150,5 +150,35 @@ namespace CalculatorTests
 
             Assert.AreEqual("4.5", mockView.Display);
         }
+
+        [Test]
+        public void TestSimpleParenDisplay()
+        {
+            var mockView = new MockView();
+            var controller = new CalculatorController(mockView);
+
+            mockView.SendNumberPressed(3);
+            mockView.SendOperatorPressed(Operator.Add);
+            Assert.AreEqual("3", mockView.Display);
+
+            mockView.SendModifierPressed(Modifier.OpenParen);
+            Assert.AreEqual("0", mockView.Display);
+
+            mockView.SendNumberPressed(3);
+            Assert.AreEqual("(3", mockView.Display);
+
+            mockView.SendOperatorPressed(Operator.Add);
+            Assert.AreEqual("(3", mockView.Display);
+
+            mockView.SendNumberPressed(2);
+            Assert.AreEqual("2", mockView.Display);
+
+            mockView.SendModifierPressed(Modifier.ClosedParen);
+            Assert.AreEqual("5", mockView.Display);
+
+            mockView.SendModifierPressed(Modifier.Equal);
+            Assert.AreEqual("8", mockView.Display);
+
+        }
     }
 }
