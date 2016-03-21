@@ -61,7 +61,7 @@ namespace CalculatorTests
             mockView.SendNumberPressed(3);
             mockView.SendModifierPressed(Modifier.Equal);
 
-            Assert.AreEqual("1.666667", mockView.Display);
+            Assert.AreEqual("1.6667", mockView.Display);
 
         }
 
@@ -76,7 +76,7 @@ namespace CalculatorTests
             mockView.SendNumberPressed(5);
             mockView.SendModifierPressed(Modifier.Equal);
 
-            Assert.AreEqual("5.333333", mockView.Display);
+            Assert.AreEqual("5.3333", mockView.Display);
 
         }
 
@@ -164,21 +164,53 @@ namespace CalculatorTests
             mockView.SendModifierPressed(Modifier.OpenParen);
             Assert.AreEqual("0", mockView.Display);
 
-            mockView.SendNumberPressed(3);
-            Assert.AreEqual("(3", mockView.Display);
+            mockView.SendNumberPressed(4);
+            Assert.AreEqual("4", mockView.Display);
 
             mockView.SendOperatorPressed(Operator.Add);
-            Assert.AreEqual("(3", mockView.Display);
+            Assert.AreEqual("4", mockView.Display);
 
             mockView.SendNumberPressed(2);
             Assert.AreEqual("2", mockView.Display);
 
             mockView.SendModifierPressed(Modifier.ClosedParen);
-            Assert.AreEqual("5", mockView.Display);
+            Assert.AreEqual("6", mockView.Display);
 
             mockView.SendModifierPressed(Modifier.Equal);
-            Assert.AreEqual("8", mockView.Display);
+            Assert.AreEqual("9", mockView.Display);
 
+        }
+
+        [Test]
+        public void TestComplexParenMathWithDecimalInput() //1.457 + (4*(8/3)-6) =
+        {
+            var mockView = new MockView();
+            var controller = new CalculatorController(mockView);
+
+            mockView.SendNumberPressed(1);
+            mockView.SendModifierPressed(Modifier.Period);
+            mockView.SendNumberPressed(4);
+            mockView.SendNumberPressed(5);
+            mockView.SendNumberPressed(7);
+            mockView.SendOperatorPressed(Operator.Add);
+
+            mockView.SendModifierPressed(Modifier.OpenParen);
+            mockView.SendNumberPressed(4);
+            mockView.SendOperatorPressed(Operator.Multiply);
+
+            mockView.SendModifierPressed(Modifier.OpenParen);
+            mockView.SendNumberPressed(8);
+            mockView.SendOperatorPressed(Operator.Divide);
+            mockView.SendNumberPressed(3);
+            mockView.SendModifierPressed(Modifier.ClosedParen);
+
+            mockView.SendOperatorPressed(Operator.Subtract);
+            mockView.SendNumberPressed(6);
+            mockView.SendModifierPressed(Modifier.ClosedParen);
+
+            mockView.SendModifierPressed(Modifier.Equal);
+
+            Assert.AreEqual("6.1237", mockView.Display);
         }
     }
 }

@@ -72,8 +72,8 @@ namespace Calculator
 
         Mode mode = Mode.Replace;
         Entry entry = Entry.Integer;
-        Paren paren = Paren.Unused;
 
+        bool parenClosed = false;
         int decimalCount = 1;
         int parenStackCount = 0;
 
@@ -98,6 +98,17 @@ namespace Calculator
             switch (e.Operator)
             {
                 case Operator.Add:
+                    if(parenClosed)
+                    {
+                        this.view.Display = parenStack[0].Result.ToString("0.####");
+                        AddOperation parenAdd = new AddOperation();
+                        parenAdd.LeftOperand = parenStack[0];
+                        current = parenAdd;
+                        mode = Mode.Replace;
+                        parenClosed = false;
+                        break;
+                    }
+
                     AddOperation add = new AddOperation();            
                     add.LeftOperand = storedOperation;
                     current = add;
@@ -105,6 +116,17 @@ namespace Calculator
                     break;
 
                 case Operator.Subtract:
+                    if (parenClosed)
+                    {
+                        this.view.Display = parenStack[0].Result.ToString("0.####");
+                        SubtractOperation parenSubtract = new SubtractOperation();
+                        parenSubtract.LeftOperand = parenStack[0];
+                        current = parenSubtract;
+                        mode = Mode.Replace;
+                        parenClosed = false;
+                        break;
+                    }
+
                     SubtractOperation subtract = new SubtractOperation();
                     subtract.LeftOperand = storedOperation;
                     current = subtract;
@@ -112,6 +134,15 @@ namespace Calculator
                     break;
 
                 case Operator.Multiply:
+                    if (parenClosed)
+                    {
+                        MultiplyOperation parenMultiply = new MultiplyOperation();
+                        parenMultiply.LeftOperand = parenStack[0];
+                        current = parenMultiply;
+                        mode = Mode.Replace;
+                        parenClosed = false;
+                        break;
+                    }
                     MultiplyOperation multiply = new MultiplyOperation();
                     multiply.LeftOperand = storedOperation;
                     current = multiply;
@@ -119,6 +150,15 @@ namespace Calculator
                     break;
 
                 case Operator.Divide:
+                    if (parenClosed)
+                    {
+                        DivideOperation parenDivide = new DivideOperation();
+                        parenDivide.LeftOperand = parenStack[0];
+                        current = parenDivide;
+                        mode = Mode.Replace;
+                        parenClosed = false;
+                        break;
+                    }
                     DivideOperation divide = new DivideOperation();
                     divide.LeftOperand = storedOperation;
                     current = divide;
@@ -131,21 +171,24 @@ namespace Calculator
         {
             switch (e.Modifier)
             {
-                case Modifier.Equal: //need to modify functionality to back-out parenStack
-                    if(paren == Paren.Used)
+                case Modifier.Equal: 
+                    if (parenClosed)
                     {
                         current = parenStack[0];
-                    } else
-                    {
-                        current.RightOperand = storedOperation;
+                        this.view.Display = current.Result.ToString("0.####");
+                        mode = Mode.Replace;
+                        parenClosed = false;
+                        break;
                     }
-                    this.view.Display = current.Result.ToString("0.######");
+
+                    current.RightOperand = storedOperation;
+                    this.view.Display = current.Result.ToString("0.####");
                     mode = Mode.Replace;
                     break;
 
                 case Modifier.Period:
                     current = storedOperation;
-                    this.view.Display = current.Result.ToString("0.######");
+                    this.view.Display = current.Result.ToString("0.####");
                     mode = Mode.Replace;
                     entry = Entry.Decimal;
                     break;
@@ -153,7 +196,7 @@ namespace Calculator
                 case Modifier.Invert:
                     storedOperation = storedOperation.Result * -1;
                     current = storedOperation;
-                    this.view.Display = current.Result.ToString("0.######");
+                    this.view.Display = current.Result.ToString("0.####");
                     break;
 
                 case Modifier.OpenParen:
@@ -167,9 +210,9 @@ namespace Calculator
                     parenStackCount--;
                     current.RightOperand = storedOperation;
                     parenStack[parenStackCount].RightOperand = current;
-                    
+                    parenClosed = true;
                     mode = Mode.Replace;
-                    this.view.Display = current.Result.ToString("0.######");
+                    this.view.Display = current.Result.ToString("0.####");
                     break;
 
             }
@@ -182,7 +225,7 @@ namespace Calculator
 
                 storedOperation = storedOperation.Result + e.Number / Math.Pow(10, decimalCount);
                 decimalCount++;
-                this.view.Display = storedOperation.Result.ToString("0.######");
+                this.view.Display = storedOperation.Result.ToString("0.####");
                 return;
             }
 
@@ -190,16 +233,21 @@ namespace Calculator
             {
                 storedOperation = e.Number;
                 mode = Mode.Append;
-                this.view.Display = storedOperation.Result.ToString("0.######");
+                this.view.Display = storedOperation.Result.ToString("0.####");
             } else
             {
                 storedOperation = storedOperation.Result * 10 + e.Number;
-                this.view.Display = storedOperation.Result.ToString("0.######");
+                this.view.Display = storedOperation.Result.ToString("0.####");
             }
-
-
+            
         }
 
+        private bool AreSame(Type a, Type b)
+        {
+            if (a == b) return true;
+            return false;
+
+        }
         
     }
 }
